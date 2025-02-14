@@ -8,12 +8,12 @@ jobs:
   comment:
     runs-on: ubuntu-latest
     steps:
-      - name: Comment on PR
+      - name: Create PR Review Comment
         uses: actions/github-script@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            console.log("Debug: Starting script for PR comment.");
+            console.log("Debug: Starting script for PR review comment.");
             const prNumber = context.payload.pull_request.number;
             console.log(`Debug: PR Number is ${prNumber}`);
             const branch = context.payload.pull_request.head.ref;
@@ -26,12 +26,24 @@ jobs:
             } else {
               message = "Please be mindful that you select the correct merging option";
             }
-            console.log(`Debug: Comment message is "${message}"`);
-            github.issues.createComment({
-              issue_number: prNumber,
+            console.log(`Debug: Review comment message is "${message}"`);
+            // Using the head commit sha; change the file path and line number as needed.
+            const commitId = context.payload.pull_request.head.sha;
+            github.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: message
+              pull_number: prNumber,
+              event: "COMMENT",
+              commit_id: commitId,
+              body: "Automated review comment",
+              comments: [
+                {
+                  path: "README.md",  // modify to a valid file in the PR diff
+                  line: 1,            // change to an appropriate line number
+                  side: "RIGHT",
+                  body: message
+                }
+              ]
             })
-            .then(response => console.log("Debug: Comment posted successfully.", response))
-            .catch(error => console.error("Debug: Failed to post comment", error));
+            .then(response => console.log("Debug: Review comment created successfully.", response))
+            .catch(error => console.error("Debug: Failed to create review comment", error));
