@@ -1,6 +1,5 @@
 name: Comment on Product
 
-
 on: 
     pull_request:
         types: [opened]
@@ -15,13 +14,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const prNumber = context.payload.pull_request.number;
-            const headRef = context.payload.pull_request.head.ref;
-            let bodyMessage;
-
             github.issues.createComment({
               issue_number: prNumber,
               owner: context.repo.owner,
-              repo: repo,
+              repo: context.repo.repo,
               body: 'Hello! Thanks for opening this pull request.'
             })
-
