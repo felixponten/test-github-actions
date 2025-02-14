@@ -13,10 +13,14 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            console.log("Debug: Starting script for PR comment.");
             const prNumber = context.payload.pull_request.number;
+            console.log(`Debug: PR Number is ${prNumber}`);
             github.issues.createComment({
               issue_number: prNumber,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: 'Hello! Thanks for opening this pull request.'
             })
+            .then(response => console.log("Debug: Comment posted successfully.", response))
+            .catch(error => console.error("Debug: Failed to post comment", error));
