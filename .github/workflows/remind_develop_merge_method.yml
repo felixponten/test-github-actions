@@ -3,15 +3,11 @@ name: Comment on Product
 on: 
   pull_request_target:
     types: [opened]
-  workflow_dispatch: {}
 
 jobs:
   comment:
     runs-on: ubuntu-latest
     steps:
-      - name: Echo
-        run: echo "test"
-      
       - name: Comment on PR
         uses: actions/github-script@v3
         with:
@@ -20,11 +16,22 @@ jobs:
             console.log("Debug: Starting script for PR comment.");
             const prNumber = context.payload.pull_request.number;
             console.log(`Debug: PR Number is ${prNumber}`);
+            const branch = context.payload.pull_request.head.ref;
+            console.log(`Debug: Source branch is ${branch}`);
+            let message = '';
+            if (branch === 'master' || branch === 'beta') {
+              message = "Remember to merge commits (DO NOT SQUASH)";
+            } else if (branch.startsWith('issues/') || branch.startsWith('feature/')) {
+              message = "Remember to squash commits";
+            } else {
+              message = "Please be mindful that you select the correct merging option";
+            }
+            console.log(`Debug: Comment message is "${message}"`);
             github.issues.createComment({
               issue_number: prNumber,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Hello! Thanks for opening this pull request.'
+              body: message
             })
             .then(response => console.log("Debug: Comment posted successfully.", response))
             .catch(error => console.error("Debug: Failed to post comment", error));
