@@ -37,8 +37,8 @@ jobs:
               body: "Automated review comment",
               comments: [
                 {
-                  path: "README.md",
-                  line: 1,
+                  path: "README.md",  // adjust path to a valid file in the PR diff
+                  line: 1,            // adjust line number as needed
                   side: "RIGHT",
                   body: message
                 }
