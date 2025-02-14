@@ -5,6 +5,11 @@ on:
     types:
       - opened
 
+  workflow_run:  # Runs when the "Create PR" workflow completes successfully
+    workflows: ["Run Unit Tests"]
+    types:
+      - completed
+      
 jobs:
   review:
     runs-on: ubuntu-latest
