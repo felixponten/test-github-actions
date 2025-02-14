@@ -1,0 +1,52 @@
+on:
+  pull_request:
+    types:
+      - opened
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add a review comment to PR
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const repo = context.repo;
+            const headRef = context.payload.pull_request.head.ref;
+            let reviewMessage = "please be mindful when chosing merge method";
+
+            if (headRef === "master" || headRef === "beta") {
+              reviewMessage = "please use merge commit";
+            } else if (headRef.startsWith("issues/") || headRef.startsWith("feature/")) {
+              reviewMessage = "please squash";
+            }
+            
+            // Retrieve files changed in the PR
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: repo.owner,
+              repo: repo.repo,
+              pull_number: prNumber
+            });
+
+            if (files.length === 0) {
+              console.log("No files found in PR.");
+              return;
+            }
+
+            // Comment on the first file in the PR
+            const firstFile = files[0].filename;
+            await github.rest.pulls.createReview({
+              owner: repo.owner,
+              repo: repo.repo,
+              pull_number: prNumber,
+              event: "COMMENT",
+              comments: [
+                {
+                  path: firstFile,
+                  position: 1,
+                  body: `⚠️ Automated Review: ${reviewMessage}.`
+                }
+              ]
+            });
