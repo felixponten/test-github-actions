@@ -1,7 +1,7 @@
-name: Remind develop merge method
+name: PR Commenter
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize]
 
 jobs:
@@ -24,5 +24,11 @@ jobs:
         else
           COMMENT="Unknown source branch, please make sure you choose correct merge type"
         fi
-        curl -s -H "Authorization: token $GITHUB_TOKEN" -X POST -d "{\"body\": \"$COMMENT\"}" \
-        "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments"
+        RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" -X POST -d "{\"body\": \"$COMMENT\"}" \
+        "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments")
+        if echo "$RESPONSE" | jq -e '.id' > /dev/null; then
+          echo "Comment posted successfully"
+        else
+          echo "Failed to post comment"
+          exit 1
+        fi
