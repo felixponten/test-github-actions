@@ -1,0 +1,28 @@
+name: Remind develop merge method
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the repository
+      uses: actions/checkout@v2
+
+    - name: Comment on PR
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        BRANCH_NAME=$(jq -r '.pull_request.head.ref' "$GITHUB_EVENT_PATH")
+        if [[ "$BRANCH_NAME" == master* || "$BRANCH_NAME" == beta* ]]; then
+          COMMENT="Merge with commit"
+        elif [[ "$BRANCH_NAME" == issues/* || "$BRANCH_NAME" == feature/* ]]; then
+          COMMENT="Merge with squash"
+        else
+          COMMENT="Unknown source branch, please make sure you choose correct merge type"
+        fi
+        curl -s -H "Authorization: token $GITHUB_TOKEN" -X POST -d "{\"body\": \"$COMMENT\"}" \
+        "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments"
