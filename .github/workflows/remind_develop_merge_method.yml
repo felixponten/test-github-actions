@@ -27,8 +27,9 @@ jobs:
               message = "Please be mindful that you select the correct merging option";
             }
             console.log(`Debug: Review comment message is "${message}"`);
-            // Using the head commit sha; change the file path and line number as needed.
+            // Using the head commit sha; change the file path, line number and diff hunk as needed.
             const commitId = context.payload.pull_request.head.sha;
+            const diffHunk = "@@ -0,0 +1 @@\n+Placeholder diff hunk";
             github.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -38,9 +39,10 @@ jobs:
               body: "Automated review comment",
               comments: [
                 {
-                  path: "README.md",  // modify to a valid file in the PR diff
-                  line: 1,            // change to an appropriate line number
+                  path: "README.md", 
+                  line: 1,          
                   side: "RIGHT",
+                  diff_hunk: diffHunk,
                   body: message
                 }
               ]
