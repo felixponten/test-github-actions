@@ -1,7 +1,7 @@
 name: Comment on Product
 
 on: 
-  pull_request:
+  pull_request_target:
     types: [opened]
   workflow_dispatch: {}
 
@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Echo
         run: echo "test"
-
+      
       - name: Comment on PR
         uses: actions/github-script@v3
         with:
