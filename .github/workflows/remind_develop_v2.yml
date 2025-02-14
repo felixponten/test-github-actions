@@ -9,6 +9,13 @@ jobs:
   review:
     runs-on: ubuntu-latest
     steps:
+      - name: Check target branch
+        run: |
+          if [ "${{ github.event.pull_request.base.ref }}" != "develop" ]; then
+            echo "PR target branch is '${{ github.event.pull_request.base.ref }}'. Exiting without review."
+            exit 0
+          fi
+          
       - name: Add a review comment to PR
         uses: actions/github-script@v7
         with:
