@@ -1,38 +1,27 @@
-name: PR Commenter
+name: Comment on Product
 
-on:
-  pull_request_target:
-    types: [opened, synchronize]
+
+on: 
+    pull_request:
+        types: [opened]
 
 jobs:
-  comment:
+  comment: 
     runs-on: ubuntu-latest
-
     steps:
-    - name: Check out the repository
-      uses: actions/checkout@v2
+      - name: Comment on PR
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const headRef = context.payload.pull_request.head.ref;
+            let bodyMessage;
 
-    - name: Install jq
-      run: sudo apt-get install -y jq
+            github.issues.createComment({
+              issue_number: prNumber,
+              owner: context.repo.owner,
+              repo: repo,
+              body: 'Hello! Thanks for opening this pull request.'
+            })
 
-    - name: Comment on PR
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        BRANCH_NAME=$(jq -r '.pull_request.head.ref' "$GITHUB_EVENT_PATH")
-        if [[ "$BRANCH_NAME" == master* || "$BRANCH_NAME" == beta* ]]; then
-          COMMENT="Merge with commit"
-        elif [[ "$BRANCH_NAME" == issues/* || "$BRANCH_NAME" == feature/* ]]; then
-          COMMENT="Merge with squash"
-        else
-          COMMENT="Unknown source branch, please make sure you choose correct merge type"
-        fi
-        RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" -X POST -d "{\"body\": \"$COMMENT\"}" \
-        "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments")
-        echo "Response: $RESPONSE"
-        if echo "$RESPONSE" | jq -e '.id' > /dev/null; then
-          echo "Comment posted successfully"
-        else
-          echo "Failed to post comment"
-          exit 1
-        fi
