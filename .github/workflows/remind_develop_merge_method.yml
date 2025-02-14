@@ -13,12 +13,20 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const prNumber = context.payload.pull_request.number;
-            const repo = context.repo;
+            const pr = context.payload.pull_request;
+            const sourceBranch = pr.head.ref;
+            let message = "";
+            if (sourceBranch === "master" || sourceBranch === "beta") {
+              message = "please use merge commit";
+            } else if (sourceBranch.startsWith("issues/") || sourceBranch.startsWith("feature/")) {
+              message = "please squash";
+            } else {
+              message = "please be mindful when chosing merge method";
+            }
             await github.rest.pulls.createReview({
-              owner: repo.owner,
-              repo: repo.repo,
-              pull_number: prNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
               event: "REQUEST_CHANGES",
-              body: "Automated review: Please review the changes before merging. 🚨"
+              body: `Automated review: ${message}`
             });
