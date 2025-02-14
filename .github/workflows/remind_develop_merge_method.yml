@@ -1,48 +1,24 @@
-name: Comment on Product
+name: Auto Review on PR
 
-on: 
-  pull_request_target:
+on:
+  pull_request:
     types: [opened]
 
 jobs:
-  comment:
+  review:
     runs-on: ubuntu-latest
     steps:
-      - name: Create PR Review Comment
+      - name: Request changes on PR
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            console.log("Debug: Starting script for PR review comment.");
             const prNumber = context.payload.pull_request.number;
-            console.log(`Debug: PR Number is ${prNumber}`);
-            const branch = context.payload.pull_request.head.ref;
-            console.log(`Debug: Source branch is ${branch}`);
-            let message = '';
-            if (branch === 'master' || branch === 'beta') {
-              message = "Remember to merge commits (DO NOT SQUASH)";
-            } else if (branch.startsWith('issues/') || branch.startsWith('feature/')) {
-              message = "Remember to squash commits";
-            } else {
-              message = "Please be mindful that you select the correct merging option";
-            }
-            console.log(`Debug: Review comment message is "${message}"`);
-            const commitId = context.payload.pull_request.head.sha;
-            github.pulls.createReview({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+            const repo = context.repo;
+            await github.rest.pulls.createReview({
+              owner: repo.owner,
+              repo: repo.repo,
               pull_number: prNumber,
-              event: "COMMENT",
-              commit_id: commitId,
-              body: "Automated review comment",
-              comments: [
-                {
-                  path: "README.md",  // adjust path to a valid file in the PR diff
-                  line: 1,            // adjust line number as needed
-                  side: "RIGHT",
-                  body: message
-                }
-              ]
-            })
-            .then(response => console.log("Debug: Review comment created successfully.", response))
-            .catch(error => console.error("Debug: Failed to create review comment", error));
+              event: "REQUEST_CHANGES",
+              body: "Automated review: Please review the changes before merging. 🚨"
+            });
