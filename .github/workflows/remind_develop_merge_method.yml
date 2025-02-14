@@ -1,15 +1,16 @@
 name: Comment on Product
 
 on: 
-    pull_request:
-        types: [opened]
+  pull_request:
+    types: [opened]
+  workflow_dispatch: {}
 
 jobs:
   comment:
     runs-on: ubuntu-latest
     steps:
       - name: Echo
-        run: echo "test";
+        run: echo "test"
 
       - name: Comment on PR
         uses: actions/github-script@v3
