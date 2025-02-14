@@ -1,3 +1,5 @@
+name: Auto Review Comment on PR
+
 on:
   pull_request:
     types:
@@ -18,9 +20,9 @@ jobs:
             let reviewMessage = "please be mindful when chosing merge method";
 
             if (headRef === "master" || headRef === "beta") {
-              reviewMessage = "please use merge commit";
+              reviewMessage = "Remember to use merge commit as merging method (DONT SQUASH!)";
             } else if (headRef.startsWith("issues/") || headRef.startsWith("feature/")) {
-              reviewMessage = "please squash";
+              reviewMessage = "Remember to use squash as merging method";
             }
             
             // Retrieve files changed in the PR
@@ -46,7 +48,7 @@ jobs:
                 {
                   path: firstFile,
                   position: 1,
-                  body: `⚠️ Automated Review: ${reviewMessage}.`
+                  body: `PR Merge: ${reviewMessage}.`
                 }
               ]
             });
