@@ -6,7 +6,8 @@ on:
       - opened
     branches:
       - develop
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Release on master"]
 
       
 jobs:
