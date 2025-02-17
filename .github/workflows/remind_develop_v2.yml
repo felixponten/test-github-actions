@@ -6,7 +6,7 @@ on:
       - opened
 
   workflow_run:  # Runs when the "Create PR" workflow completes successfully
-    workflows: ["Run Unit Tests"]
+    workflows: ["Run Unit Tests", "Release on master"]
     types:
       - completed
       
