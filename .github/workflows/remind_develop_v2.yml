@@ -6,11 +6,6 @@ on:
       - opened
     branches:
       - develop
-
-  workflow_run:  # Runs when the "Create PR" workflow completes successfully
-    workflows: ["Release on master", "Create Pull Request"]
-    types:
-      - completed
       
 jobs:
   review:

@@ -43,4 +43,40 @@ jobs:
               base: 'develop',
               body: `This PR merges master into develop after a release.`
             });
+            const fs = require('fs');
+            const envFile = process.env.GITHUB_ENV;
+            fs.appendFileSync(envFile, `PR_URL=${pullRequest.html_url}\n`);
             console.log(`Created pull request: ${pullRequest.html_url}`);
+
+      - name: Get latest commit SHA of PR
+        id: get-sha
+        run: |
+          PR_NUMBER=$(gh pr view $PR_URL --json number -q .number)
+          COMMIT_SHA=$(gh pr view $PR_NUMBER --json headRefOid -q .headRefOid)
+          echo "COMMIT_SHA=$COMMIT_SHA" >> $GITHUB_ENV
+          echo "commit sha: $COMMIT_SHA"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get PR head branch
+        id: get-branch
+        run: |
+          PR_BRANCH=$(gh pr view $PR_URL --json headRefName -q .headRefName)
+          echo "PR_BRANCH=$PR_BRANCH" >> $GITHUB_ENV
+          echo "PR_BRANCH: $PR_BRANCH"
+
+      - name: Trigger unit tests on PR commit
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/demo_run_unittests.yml/dispatches \
+            -d '{"ref":"${{ env.PR_BRANCH }}"}'
+
+      - name: Trigger Auto comment
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/remind_develop_v2.yml/dispatches \
+            -d '{"ref":"${{ env.PR_BRANCH }}"}'
