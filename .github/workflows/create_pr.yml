@@ -7,22 +7,17 @@ jobs:
   create-pr:
     runs-on: ubuntu-latest
     steps:
-      - name: Authenticate with GitHub App
+      - uses: actions/create-github-app-token@v1
         id: app-token
-        uses: actions/github-app-auth@v1
         with:
           app-id: ${{ vars.APP_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
           
-      - uses: ./actions/staging-tests
-        with:
-          token: ${{ steps.app-token.outputs.token }}
-          
       - name: Checkout repository
-        uses: actions/checkout@v3
         with:
           token: ${{ steps.app-token.outputs.token }}
           ref: ${{ github.head_ref }}
+          # Make sure the value of GITHUB_TOKEN will not be persisted in repo's config
           persist-credentials: false
 
       - name: Create changes and new branch
