@@ -7,7 +7,8 @@ jobs:
   create-pr:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/create-github-app-token@v1
+      - name: Create token
+        uses: actions/create-github-app-token@v1
         id: app-token
         with:
           app-id: ${{ vars.APP_ID }}
@@ -46,7 +47,7 @@ jobs:
               repo: context.repo.repo,
               title: `new pr into beta`,
               head: `new-feature`,
-              base: 'beta',
+              base: 'develop',
               body: `asd.`
             });
             console.log(`Created pull request: ${pullRequest.html_url}`);
