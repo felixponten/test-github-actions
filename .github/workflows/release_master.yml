@@ -54,6 +54,7 @@ jobs:
           PR_NUMBER=$(gh pr view $PR_URL --json number -q .number)
           COMMIT_SHA=$(gh pr view $PR_NUMBER --json headRefOid -q .headRefOid)
           echo "COMMIT_SHA=$COMMIT_SHA" >> $GITHUB_ENV
+          echo "commit sha: $COMMIT_SHA"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -62,6 +63,7 @@ jobs:
         run: |
           PR_BRANCH=$(gh pr view $PR_URL --json headRefName -q .headRefName)
           echo "PR_BRANCH=$PR_BRANCH" >> $GITHUB_ENV
+          echo "PR_BRANCH: $PR_BRANCH"
 
       - name: Trigger unit tests on PR commit
         run: |
