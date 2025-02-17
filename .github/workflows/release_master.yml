@@ -31,10 +31,6 @@ jobs:
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
 
-      - name: Create GitHub Release
-        run: |
-          gh release create ${{ env.TAG_NAME }} --title "Release ${{ env.TAG_NAME }}" --notes "Release ${{ env.TAG_NAME }}" --prerelease
-
       - name: Create a pull request
         uses: actions/github-script@v6
         with:
