@@ -4,9 +4,11 @@ on:
   pull_request:
     types:
       - opened
+    branches:
+      - develop
 
   workflow_run:  # Runs when the "Create PR" workflow completes successfully
-    workflows: ["Run Unit Tests", "Release on master"]
+    workflows: ["Release on master"]
     types:
       - completed
       
@@ -14,13 +16,6 @@ jobs:
   review:
     runs-on: ubuntu-latest
     steps:
-      - name: Check target branch
-        run: |
-          if [ "${{ github.event.pull_request.base.ref }}" != "develop" ]; then
-            echo "PR target branch is '${{ github.event.pull_request.base.ref }}'. Exiting without review."
-            exit 0
-          fi
-          
       - name: Add a review comment to PR
         uses: actions/github-script@v7
         with:
