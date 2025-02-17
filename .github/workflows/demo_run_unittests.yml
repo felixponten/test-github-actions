@@ -6,8 +6,9 @@ on:
       - opened
       - synchronize  # Ensures tests run on updates to the PR
 
-  workflow_run:  # Runs when the "Create PR" workflow completes successfully
-    workflows: ["Create Pull Request", "Release on master"]
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Auto Master to Develop PR", "Manual Release"]
     types:
       - completed
 
