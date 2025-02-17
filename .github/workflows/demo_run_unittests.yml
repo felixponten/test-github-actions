@@ -7,7 +7,7 @@ on:
       - synchronize  # Ensures tests run on updates to the PR
 
   workflow_run:
-    workflows: [Release Master]
+    workflows: [Release on master, Release Master]
 
 jobs:
   build-and-run-unit-tests:
