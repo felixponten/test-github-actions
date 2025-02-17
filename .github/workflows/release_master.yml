@@ -43,7 +43,7 @@ jobs:
               base: 'develop',
               body: `This PR merges master into develop after a release.`
             });
-            echo "PR_URL=${pullRequest.html_url}" >> $GITHUB_ENV
+            fs.appendFileSync(envFile, `PR_URL=${pullRequest.html_url}\n`);
             console.log(`Created pull request: ${pullRequest.html_url}`);
 
       - name: Get latest commit SHA of PR
