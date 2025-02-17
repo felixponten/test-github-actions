@@ -6,11 +6,6 @@ on:
       - opened
       - synchronize  # Ensures tests run on updates to the PR
 
-  workflow_run:
-    workflows: [Release on master, Release Master, release master, "Release on master"]
-    types:
-      - completed
-
 jobs:
   build-and-run-unit-tests:
     runs-on: ubuntu-latest
