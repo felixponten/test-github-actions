@@ -6,10 +6,6 @@ on:
       - opened
     branches:
       - develop
-
-  workflow_run:
-    workflows: [Release Master]
-
       
 jobs:
   review:
