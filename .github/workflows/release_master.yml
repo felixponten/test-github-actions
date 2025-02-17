@@ -71,7 +71,7 @@ jobs:
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/demo_run_unittests.yml/dispatches \
-            -d '{"ref":"${{ env.COMMIT_SHA }}"}'
+            -d '{"ref":"${{ env.PR_BRANCH }}"}'
 
       - name: Trigger Auto comment
         run: |
