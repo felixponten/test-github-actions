@@ -1,5 +1,10 @@
 name: Create Pull Request
 
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
 on:
   workflow_dispatch:
 
