@@ -34,6 +34,7 @@ jobs:
           # Stage and commit changes
           git add newfile.txt
           git commit -m "Add newfile.txt with automated content" || echo "No changes to commit"
+          git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}
 
       - name: Push new branch to origin
         run: git push origin new-feature
