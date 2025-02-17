@@ -19,10 +19,10 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           
       - name: Checkout repository
+        uses: actions/checkout@v3
         with:
           token: ${{ steps.app-token.outputs.token }}
           ref: ${{ github.head_ref }}
-          # Make sure the value of GITHUB_TOKEN will not be persisted in repo's config
           persist-credentials: false
 
       - name: Create changes and new branch
