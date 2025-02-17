@@ -1,10 +1,5 @@
 name: Create pr
 
-permissions:
-  contents: write
-  pull-requests: write
-  actions: write
-
 on:
   workflow_dispatch:
 
@@ -12,8 +7,21 @@ jobs:
   create-pr:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+      - uses: ./actions/staging-tests
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          
       - name: Checkout repository
-        uses: actions/checkout@v3
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          ref: ${{ github.head_ref }}
+          # Make sure the value of GITHUB_TOKEN will not be persisted in repo's config
+          persist-credentials: false
 
       - name: Create changes and new branch
         run: |
@@ -31,24 +39,17 @@ jobs:
       - name: Push new branch to origin
         run: git push origin new-feature
 
-
-      - name: Create PR from master to develop
-        run: |
-          PR_URL=$(gh pr create --base beta --head new-feature --title "Auto Merge a to b" --body "Automated PR")
-          PR_NUMBER=$(gh pr view $PR_URL --json number -q .number)
-          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
-         
-      # Wait for unit tests to pass before merging (example)
-      - name: Wait for unit tests to pass
-        run: |
-          PR_STATUS=$(gh pr view $PR_NUMBER --json checks -q '.checks[0].status')
-          while [[ "$PR_STATUS" != "SUCCESS" && "$PR_STATUS" != "FAILURE" ]]; do
-            echo "Waiting for status check to pass..."
-            sleep 10
-            PR_STATUS=$(gh pr view $PR_NUMBER --json checks -q '.checks[0].status')
-          done
-          if [[ "$PR_STATUS" == "FAILURE" ]]; then
-            echo "Unit tests failed. Exiting."
-            exit 1
-          fi
-          echo "Unit tests passed. Proceeding."
+      - name: Create a pull request
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const { data: pullRequest } = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `new pr into beta`,
+              head: `new-feature`,
+              base: 'beta',
+              body: `asd.`
+            });
+            console.log(`Created pull request: ${pullRequest.html_url}`);
