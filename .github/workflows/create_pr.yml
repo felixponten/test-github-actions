@@ -1,4 +1,4 @@
-name: Create Pull Request
+name: Create pr
 
 on:
   workflow_dispatch:
